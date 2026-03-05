@@ -77,7 +77,7 @@ const TaskCard: React.FC<{ task: TaskItem }> = ({ task }) => {
                  </div>
                  <div className="flex items-center gap-1.5 opacity-70 shrink-0 ml-2">
                     <Calendar size={10} />
-                    <span className="text-[9px] font-mono font-bold">{task.date}</span>
+                    <span className="text-[9px] font-sans font-bold">{task.date}</span>
                 </div>
             </div>
 
@@ -259,7 +259,7 @@ const TasksView: React.FC<TasksViewProps> = ({ trips }) => {
                 <CheckCircle size={32} className="text-emerald-500" />
              </div>
              <p className="text-sm font-medium">All systems operational.</p>
-             <p className="text-xs font-mono mt-1">No pending tasks.</p>
+             <p className="text-xs font-sans mt-1">No pending tasks.</p>
           </div>
         ) : (
           <div className="space-y-4 max-w-4xl mx-auto">

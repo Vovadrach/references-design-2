@@ -51,6 +51,53 @@ export interface BillingPipeline {
   invoiceStatus?: string;
 }
 
+// --- Messenger-style Communications Types ---
+
+export interface ChatMessage {
+  id: string;
+  threadId: string; // The original Gmail thread ID
+  subject: string;
+  body: string;
+  date: string; // ISO string
+  from: { name?: string; email: string };
+  to: { name?: string; email: string }[];
+  isIncoming: boolean;
+  isRead: boolean;
+  attachments?: string[];
+}
+
+export interface ClientConversation {
+  clientId: string;
+  clientName: string;
+  lastMessage?: ChatMessage;
+  unreadCount: number;
+  messages: ChatMessage[];
+}
+
+export interface UnassignedGroup {
+  email: string;
+  messages: ChatMessage[];
+  lastDate: string;
+}
+
+export interface EmailMessage extends ChatMessage {}
+
+export interface EmailThread {
+  id: string;
+  subject: string;
+  preview: string;
+  lastMessageDate: string;
+  status: 'LINKED' | 'AMBIGUOUS' | 'UNLINKED';
+  messages: EmailMessage[];
+}
+
+export interface ViewState {
+  current: 'TRIPS' | 'TASKS' | 'DETAIL' | 'COMMUNICATIONS';
+  commSubView?: 'LIST' | 'CHAT' | 'THREAD' | 'QUEUE';
+  selectedClientId?: string;
+  selectedThreadId?: string;
+}
+
 export interface Trip {
   id: string;
   clientName: string;

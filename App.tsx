@@ -5,11 +5,12 @@ import TasksView from './components/TasksView';
 import Sidebar from './components/Sidebar';
 import TripDetailView from './components/TripDetailView';
 import TripsTableView from './components/TripsTableView';
+import CommunicationsView from './components/Communications/CommunicationsView';
 import FooterStats from './components/FooterStats';
 import { MOCK_TRIPS } from './constants';
 import { Trip, TripStatus } from './types';
 
-export type ViewState = 'TRIPS' | 'TASKS' | 'DETAIL';
+export type ViewState = 'TRIPS' | 'TASKS' | 'DETAIL' | 'COMMUNICATIONS';
 export type TripViewMode = 'LIST' | 'TABLE';
 
 function App() {
@@ -31,8 +32,8 @@ function App() {
     setCurrentView('TRIPS');
   };
 
-  const handleSidebarChange = (view: 'TRIPS' | 'TASKS') => {
-    if (view !== 'TRIPS') {
+  const handleSidebarChange = (view: ViewState) => {
+    if (view !== 'TRIPS' && view !== 'DETAIL') {
         setSelectedTrip(null);
     }
     setCurrentView(view);
@@ -63,7 +64,7 @@ function App() {
           <div className="flex-1 flex flex-col relative min-w-0 bg-[#F3F4F6]">
             
             {/* --- HEADER: Glassmorphism Console Style --- */}
-            {currentView !== 'DETAIL' && (
+            {currentView !== 'DETAIL' && currentView !== 'COMMUNICATIONS' && (
                 <header className="px-6 py-4 flex items-center justify-between shrink-0 z-10 bg-[#F3F4F6]/90 backdrop-blur-sm transition-all">
                     <div className="flex items-center gap-4">
                         <button 
@@ -111,6 +112,10 @@ function App() {
                 
                 {currentView === 'DETAIL' && selectedTrip ? (
                     <TripDetailView trip={selectedTrip} onBack={handleBackToTrips} />
+                ) : currentView === 'COMMUNICATIONS' ? (
+                    <div className="flex-1 overflow-hidden flex flex-col">
+                         <CommunicationsView onExit={() => handleSidebarChange('TRIPS')} />
+                    </div>
                 ) : (
                     <div className="flex-1 overflow-hidden flex flex-col px-4 md:px-6 pb-0">
                         <div className="max-w-5xl mx-auto w-full h-full flex flex-col">
@@ -196,6 +201,13 @@ function App() {
                             {currentView === 'TASKS' && (
                                 <div className="mt-0 h-full pb-4">
                                     <TasksView trips={MOCK_TRIPS} />
+                                </div>
+                            )}
+
+                            {/* VIEW: COMMUNICATIONS */}
+                            {currentView === 'COMMUNICATIONS' && (
+                                <div className="mt-0 h-full">
+                                    <CommunicationsView onExit={() => handleSidebarChange('TRIPS')} />
                                 </div>
                             )}
                         </div>

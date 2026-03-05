@@ -1,10 +1,120 @@
 
-import { Trip, TripStatus, PipelineStatus, ActivityItem } from './types';
+import { Trip, TripStatus, PipelineStatus, ActivityItem, ClientConversation, UnassignedGroup, ChatMessage } from './types';
+
+export const MOCK_CONVERSATIONS: ClientConversation[] = [
+  {
+    clientId: '1',
+    clientName: 'ROSSI ACCOUNTING',
+    unreadCount: 2,
+    messages: [
+      {
+        id: 'm1',
+        threadId: 'th1',
+        subject: 'Update on Shipment FL-789012',
+        body: 'The driver is currently at the border. We expect a 2-hour delay due to customs inspection. Will keep you posted.',
+        date: '2024-02-04T11:45:00',
+        from: { name: 'Rossi Logistics', email: 'ops@rossi.it' },
+        to: [{ name: 'Nexmile Ops', email: 'ops@nexmile.com' }],
+        isIncoming: true,
+        isRead: false
+      },
+      {
+        id: 'm2',
+        threadId: 'th1',
+        subject: 'Update on Shipment FL-789012',
+        body: 'Understood. Please let us know as soon as he clears customs.',
+        date: '2024-02-04T11:50:00',
+        from: { name: 'Nexmile Ops', email: 'ops@nexmile.com' },
+        to: [{ name: 'Rossi Logistics', email: 'ops@rossi.it' }],
+        isIncoming: false,
+        isRead: true
+      },
+      {
+        id: 'm3',
+        threadId: 'th2',
+        subject: 'New Quote Request: Berlin-Paris',
+        body: 'Could you please provide a quote for 22 pallets from Berlin to Paris for next Tuesday?',
+        date: '2024-02-04T14:32:00',
+        from: { name: 'Rossi Accounting', email: 'accounting@rossi.it' },
+        to: [{ name: 'Nexmile Ops', email: 'ops@nexmile.com' }],
+        isIncoming: true,
+        isRead: false
+      },
+      {
+        id: 'm3-1',
+        threadId: 'th2',
+        subject: 'Billing Inquiry',
+        body: 'We noticed a discrepancy in the last invoice. Can you please check the VAT calculation?',
+        date: '2024-02-04T15:10:00',
+        from: { name: 'Rossi Billing', email: 'billing@rossi.it' },
+        to: [{ name: 'Nexmile Ops', email: 'ops@nexmile.com' }],
+        isIncoming: true,
+        isRead: true
+      },
+      {
+        id: 'm3-2',
+        threadId: 'th3',
+        subject: 'Urgent Support',
+        body: 'We are having trouble accessing the portal. Is there a temporary password?',
+        date: '2024-02-04T16:05:00',
+        from: { name: 'Rossi Support', email: 'support@rossi.it' },
+        to: [{ name: 'Nexmile Ops', email: 'ops@nexmile.com' }],
+        isIncoming: true,
+        isRead: true
+      }
+    ]
+  },
+  {
+    clientId: '2',
+    clientName: 'PolLogistics SA',
+    unreadCount: 0,
+    messages: [
+      {
+        id: 'm4',
+        threadId: 'th3',
+        subject: 'Missing CMR for last week',
+        body: 'We are still waiting for the CMR for the delivery to Napoli. This is holding up our payment process.',
+        date: '2024-02-03T09:20:00',
+        from: { name: 'Marco Polo', email: 'marco@pollogistics.it' },
+        to: [{ name: 'Nexmile Ops', email: 'ops@nexmile.com' }],
+        isIncoming: true,
+        isRead: true
+      }
+    ]
+  }
+];
+
+// Set lastMessage for each conversation
+MOCK_CONVERSATIONS.forEach(c => {
+  if (c.messages.length > 0) {
+    c.lastMessage = c.messages[c.messages.length - 1];
+  }
+});
+
+export const MOCK_UNASSIGNED: UnassignedGroup[] = [
+  {
+    email: 'info@berlin-freight.de',
+    lastDate: '2024-02-03T15:10:00',
+    messages: [
+      {
+        id: 'm5',
+        threadId: 'th4',
+        subject: 'Inquiry about rates',
+        body: 'Hello, we are looking for a new transport partner for our routes in Germany.',
+        date: '2024-02-03T15:10:00',
+        from: { email: 'info@berlin-freight.de' },
+        to: [{ name: 'Nexmile Ops', email: 'ops@nexmile.com' }],
+        isIncoming: true,
+        isRead: false
+      }
+    ]
+  }
+];
 
 export const MOCK_TRIPS: Trip[] = [
   {
     id: '1',
-    clientName: 'Rossi Transporti SpA',
+    clientName: 'ROSSI ACCOUNTING',
     status: TripStatus.IN_TRANSIT,
     task: {
       id: 'FL-789012',

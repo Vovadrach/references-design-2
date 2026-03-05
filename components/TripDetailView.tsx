@@ -98,27 +98,26 @@ const CompactActionButton = ({ state, type, colorTheme }: CompactActionProps) =>
   let icon = null;
 
   const colorStyles: Record<string, string> = {
-    amber: "bg-white text-amber-600 border-amber-200 hover:bg-amber-50 hover:border-amber-300",
-    blue: "bg-white text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-300",
-    emerald: "bg-white text-emerald-600 border-emerald-200 hover:bg-emerald-50 hover:border-emerald-300",
-    gray: "bg-white text-gray-500 border-gray-200 hover:bg-gray-50 hover:border-gray-300"
+    emerald: "bg-emerald-500 text-white border-emerald-600 hover:bg-emerald-600",
+    purple: "bg-purple-500 text-white border-purple-600 hover:bg-purple-600",
+    amber: "bg-amber-500 text-white border-amber-600 hover:bg-amber-600",
+    blue: "bg-blue-500 text-white border-blue-600 hover:bg-blue-600",
+    gray: "bg-gray-100 text-gray-500 border-gray-200 hover:bg-gray-200"
   };
 
   const currentStyle = colorStyles[colorTheme] || colorStyles.gray;
-  const baseStyle = `flex items-center gap-2 text-[10px] font-bold font-mono uppercase tracking-wide transition-all cursor-pointer group px-3 py-1.5 rounded-lg border shadow-sm ${currentStyle} active:scale-95`;
+  const baseStyle = `flex items-center gap-2 text-[10px] font-bold font-sans uppercase tracking-wide transition-all cursor-pointer group px-3 py-1.5 rounded-lg border shadow-md ${currentStyle} active:scale-95`;
 
   if (type === 'cmr') {
     switch(state) {
-      case 'PENDING': label = 'Upload CMR'; icon = <Upload size={12} />; break;
-      case 'UPLOADED': label = 'Send Email'; icon = <Mail size={12} />; break;
-      case 'SENT': label = 'CMR'; icon = <Download size={12} />; break;
+      case 'PENDING': label = 'Завантажити CMR'; icon = <Upload size={12} />; break;
       default: return null;
     }
   } else {
     switch(state) {
-      case 'PENDING': label = 'Виставити'; icon = <FilePlus size={12} />; break;
-      case 'ISSUED': label = 'Вислати'; icon = <Send size={12} />; break;
-      case 'WAITING_PAYMENT': label = 'Mark Paid'; icon = <DollarSign size={12} />; break;
+      case 'PENDING': label = 'Виставити інвойс-фактуру'; icon = <FilePlus size={12} />; break;
+      case 'INVOICED': label = 'Відправити на оплату'; icon = <Send size={12} />; break;
+      case 'SENT_FOR_PAYMENT': label = 'Позначити оплачено'; icon = <DollarSign size={12} />; break;
       default: return null;
     }
   }
@@ -162,30 +161,26 @@ const FloatingInputConsole = ({ activeTab, trip }: { activeTab: Tab, trip: Trip 
     const theme = TAB_THEMES[activeTab === 'SYSTEM' ? 'ALL' : activeTab];
 
     // --- Logic for Buttons inside Console ---
-    const cmrState = trip.cmr.status === PipelineStatus.COMPLETED ? 'RECEIVED' : 
-                   trip.cmr.currentStep === 'Sent_to_Client' ? 'SENT' : 
-                   trip.cmr.status === PipelineStatus.PENDING ? 'PENDING' : 'UPLOADED';
+    const cmrState = trip.cmr.status === PipelineStatus.COMPLETED ? 'UPLOADED' : 'PENDING';
 
-    const billingState = trip.billing.status === PipelineStatus.COMPLETED ? 'PAID' :
-                       trip.billing.invoiceStatus === 'ISSUED' ? 'ISSUED' :
-                       trip.billing.invoiceStatus === 'WAITING_PAYMENT' ? 'WAITING_PAYMENT' : 'PENDING';
+    const billingState = trip.billing.invoiceStatus === 'PAID' ? 'PAID' :
+                       trip.billing.invoiceStatus === 'WAITING_PAYMENT' ? 'SENT_FOR_PAYMENT' :
+                       trip.billing.invoiceStatus === 'ISSUED' ? 'INVOICED' : 'PENDING';
 
-    const getCmrButtonTheme = () => {
-        switch (cmrState) {
-            case 'PENDING': return 'amber'; 
-            case 'UPLOADED': return 'blue'; 
-            case 'SENT': return 'emerald';  
-            default: return 'gray';
-        }
+    const getStatusColor = () => {
+        if (billingState === 'PAID') return 'emerald';
+        if (billingState === 'SENT_FOR_PAYMENT') return 'purple';
+        if (cmrState === 'UPLOADED') return 'amber';
+        return 'gray';
     };
 
+    const getCmrButtonTheme = () => 'blue';
+
     const getBillingButtonTheme = () => {
-        switch (billingState) {
-            case 'PENDING': return 'blue';    
-            case 'ISSUED': return 'amber';    
-            case 'WAITING_PAYMENT': return 'emerald'; 
-            default: return 'gray';
-        }
+        if (billingState === 'PENDING') return 'blue';
+        if (billingState === 'INVOICED') return 'amber';
+        if (billingState === 'SENT_FOR_PAYMENT') return 'purple';
+        return 'gray';
     };
     // ----------------------------------------
 
@@ -199,13 +194,13 @@ const FloatingInputConsole = ({ activeTab, trip }: { activeTab: Tab, trip: Trip 
     const renderEmailFields = () => (
         <div className="grid grid-cols-12 gap-2 mb-3 animate-in slide-in-from-bottom-1 fade-in duration-300 px-1">
             <InputFieldWrapper widthClass="col-span-5" label="To:">
-                <input className="bg-transparent border-none outline-none text-sm text-gray-800 placeholder-gray-400 w-full font-mono font-bold" defaultValue={trip.clientName} />
+                <input className="bg-transparent border-none outline-none text-sm text-gray-800 placeholder-gray-400 w-full font-sans font-bold" defaultValue={trip.clientName} />
             </InputFieldWrapper>
             <InputFieldWrapper widthClass="col-span-3" label="CC:">
-                <input className="bg-transparent border-none outline-none text-sm text-gray-800 placeholder-gray-400 w-full font-mono" placeholder="logistics@" />
+                <input className="bg-transparent border-none outline-none text-sm text-gray-800 placeholder-gray-400 w-full font-sans" placeholder="logistics@" />
             </InputFieldWrapper>
             <InputFieldWrapper widthClass="col-span-4" label="Subj:">
-                <input className="bg-transparent border-none outline-none text-sm font-bold text-gray-800 placeholder-gray-400 w-full font-mono" placeholder="..." />
+                <input className="bg-transparent border-none outline-none text-sm font-bold text-gray-800 placeholder-gray-400 w-full font-sans" placeholder="..." />
             </InputFieldWrapper>
         </div>
     );
@@ -214,11 +209,11 @@ const FloatingInputConsole = ({ activeTab, trip }: { activeTab: Tab, trip: Trip 
         <div className="flex gap-2 mb-3 animate-in slide-in-from-bottom-1 fade-in duration-300 px-1">
              <InputFieldWrapper widthClass="w-auto">
                 <Calendar size={12} className={theme.iconColor} />
-                <input type="date" className="bg-transparent border-none outline-none text-sm text-gray-700 font-mono w-24" />
+                <input type="date" className="bg-transparent border-none outline-none text-sm text-gray-700 font-sans w-24" />
              </InputFieldWrapper>
              <InputFieldWrapper widthClass="flex-1">
                 <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">Assign:</span>
-                <input className="bg-transparent border-none outline-none text-sm text-gray-800 placeholder-gray-400 w-full font-mono" defaultValue="Me" />
+                <input className="bg-transparent border-none outline-none text-sm text-gray-800 placeholder-gray-400 w-full font-sans" defaultValue="Me" />
              </InputFieldWrapper>
         </div>
     );
@@ -241,7 +236,7 @@ const FloatingInputConsole = ({ activeTab, trip }: { activeTab: Tab, trip: Trip 
                         w-full bg-transparent border-none outline-none 
                         text-base ${theme.text} placeholder-gray-400 
                         resize-none min-h-[50px] max-h-[200px] 
-                        font-mono leading-relaxed custom-scrollbar px-1 py-1
+                        font-sans leading-relaxed custom-scrollbar px-1 py-1
                     `}
                     placeholder={theme.placeholder}
                     rows={1}
@@ -262,7 +257,7 @@ const FloatingInputConsole = ({ activeTab, trip }: { activeTab: Tab, trip: Trip 
 
                 {/* Center: Contextual Actions */}
                 <div className="flex items-center gap-2">
-                     {cmrState !== 'RECEIVED' && (
+                     {cmrState === 'PENDING' && (
                         <CompactActionButton 
                             state={cmrState} 
                             type="cmr" 
@@ -270,11 +265,21 @@ const FloatingInputConsole = ({ activeTab, trip }: { activeTab: Tab, trip: Trip 
                         />
                     )}
                     {billingState !== 'PAID' && (
-                        <CompactActionButton 
-                            state={billingState} 
-                            type="billing" 
-                            colorTheme={getBillingButtonTheme()} 
-                        />
+                        billingState === 'INVOICED' ? (
+                            cmrState === 'UPLOADED' ? (
+                                <CompactActionButton 
+                                    state={billingState} 
+                                    type="billing" 
+                                    colorTheme={getBillingButtonTheme()} 
+                                />
+                            ) : null
+                        ) : (
+                            <CompactActionButton 
+                                state={billingState} 
+                                type="billing" 
+                                colorTheme={getBillingButtonTheme()} 
+                            />
+                        )
                     )}
                 </div>
 
@@ -320,42 +325,61 @@ const TripDetailView: React.FC<TripDetailViewProps> = ({ trip, onBack }) => {
   // --- Logic replicated from TripCard for visual consistency ---
   
   // States derived from trip props for detail view
-  const cmrState = trip.cmr.status === PipelineStatus.COMPLETED ? 'RECEIVED' : 
-                   trip.cmr.currentStep === 'Sent_to_Client' ? 'SENT' : 
-                   trip.cmr.status === PipelineStatus.PENDING ? 'PENDING' : 'UPLOADED';
+  const cmrState = trip.cmr.status === PipelineStatus.COMPLETED ? 'UPLOADED' : 'PENDING';
 
-  const billingState = trip.billing.status === PipelineStatus.COMPLETED ? 'PAID' :
-                       trip.billing.invoiceStatus === 'ISSUED' ? 'ISSUED' :
-                       trip.billing.invoiceStatus === 'WAITING_PAYMENT' ? 'WAITING_PAYMENT' : 'PENDING';
+  const billingState = trip.billing.invoiceStatus === 'PAID' ? 'PAID' :
+                       trip.billing.invoiceStatus === 'WAITING_PAYMENT' ? 'SENT_FOR_PAYMENT' :
+                       trip.billing.invoiceStatus === 'ISSUED' ? 'INVOICED' : 'PENDING';
+
+  const getStatusColor = () => {
+    if (billingState === 'PAID') return 'emerald';
+    if (billingState === 'SENT_FOR_PAYMENT') return 'purple';
+    if (cmrState === 'UPLOADED') return 'amber';
+    return 'gray';
+  };
 
   const getHeaderStyles = () => {
-    if (billingState === 'WAITING_PAYMENT') return 'bg-blue-50/40 border-blue-100';
-    if (billingState === 'PAID' || trip.status === TripStatus.COMPLETED) return 'bg-emerald-50/40 border-emerald-100';
-    return 'bg-white border-gray-100';
+    const theme = getStatusColor();
+    switch (theme) {
+      case 'emerald': return 'bg-emerald-500/10 border-emerald-200';
+      case 'purple': return 'bg-purple-500/10 border-purple-200';
+      case 'amber': return 'bg-amber-500/10 border-amber-200';
+      default: return 'bg-white border-gray-100';
+    }
   };
 
   const getTextColor = (status: PipelineStatus, isLastItem: boolean) => {
+    if (status === PipelineStatus.COMPLETED) return 'text-emerald-600';
+    
+    const theme = getStatusColor();
     if (!isLastItem) return 'text-gray-400'; 
-    switch (status) {
-      case PipelineStatus.COMPLETED: return 'text-emerald-600';
-      case PipelineStatus.WARNING: return 'text-amber-600';
-      case PipelineStatus.ACTIVE: return 'text-blue-600';
-      case PipelineStatus.BLOCKED: return 'text-red-600';
-      default: return 'text-gray-500';
+
+    switch (theme) {
+      case 'purple': return 'text-purple-600';
+      case 'amber': return 'text-amber-600';
+      case 'emerald': return 'text-emerald-600';
+      default: return 'text-blue-600';
     }
   };
 
   const renderStatusIcon = () => {
-    switch (trip.status) {
-      case TripStatus.COMPLETED:
+    const theme = getStatusColor();
+    switch (theme) {
+      case 'emerald':
         return (
           <div className="bg-white p-1 rounded-md border border-emerald-100 shadow-sm text-emerald-600">
              <Check size={14} strokeWidth={2.5} />
           </div>
         );
-      case TripStatus.IN_TRANSIT:
+      case 'purple':
         return (
-           <div className="bg-white p-1 rounded-md border border-blue-100 shadow-sm text-blue-600">
+           <div className="bg-white p-1 rounded-md border border-purple-100 shadow-sm text-purple-600">
+             <Clock size={14} strokeWidth={2} />
+          </div>
+        );
+      case 'amber':
+        return (
+           <div className="bg-white p-1 rounded-md border border-amber-100 shadow-sm text-amber-600">
              <Truck size={14} strokeWidth={2} />
           </div>
         );
@@ -371,22 +395,13 @@ const TripDetailView: React.FC<TripDetailViewProps> = ({ trip, onBack }) => {
   const getSectionHeaderStyle = (active: boolean) => 
     `text-[10px] font-bold font-mono uppercase tracking-wider mb-1 flex items-center gap-2 ${active ? 'text-gray-700' : 'text-gray-400'}`;
   
-  const getCmrButtonTheme = () => {
-    switch (cmrState) {
-      case 'PENDING': return 'amber'; 
-      case 'UPLOADED': return 'blue'; 
-      case 'SENT': return 'emerald';  
-      default: return 'gray';
-    }
-  };
+  const getCmrButtonTheme = () => 'blue';
 
   const getBillingButtonTheme = () => {
-    switch (billingState) {
-      case 'PENDING': return 'blue';    
-      case 'ISSUED': return 'amber';    
-      case 'WAITING_PAYMENT': return 'emerald'; 
-      default: return 'gray';
-    }
+    if (billingState === 'PENDING') return 'blue';
+    if (billingState === 'INVOICED') return 'amber';
+    if (billingState === 'SENT_FOR_PAYMENT') return 'purple';
+    return 'gray';
   };
 
   return (
@@ -395,55 +410,55 @@ const TripDetailView: React.FC<TripDetailViewProps> = ({ trip, onBack }) => {
         {/* HEADER AREA */}
         <div className="shrink-0 z-30 bg-[#F3F4F6] relative transition-all duration-300">
             {/* Top Bar */}
-            <div className="px-4 py-3 flex items-center justify-between">
+            <div className="px-4 py-2 flex items-center justify-between">
                 <button 
                     onClick={onBack} 
-                    className="group flex items-center gap-2 text-gray-500 hover:text-gray-900 bg-white border border-gray-200 px-3 py-1.5 rounded-lg shadow-sm transition-all hover:border-gray-300 active:scale-95"
+                    className="group flex items-center gap-2 text-gray-500 hover:text-gray-900 bg-white border border-gray-200 px-2.5 py-1 rounded-lg shadow-sm transition-all hover:border-gray-300 active:scale-95"
                 >
-                    <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
-                    <span className="text-[10px] font-bold font-mono uppercase tracking-wide">BACK</span>
+                    <ArrowLeft size={12} className="group-hover:-translate-x-0.5 transition-transform" />
+                    <span className="text-[9px] font-bold font-mono uppercase tracking-wide">BACK</span>
                 </button>
                 
                 <button 
                     onClick={() => setIsHeaderExpanded(!isHeaderExpanded)}
                     className={`
-                        flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all duration-200
+                        flex items-center gap-2 px-2.5 py-1 rounded-lg border transition-all duration-200
                         ${isHeaderExpanded 
                             ? 'bg-gray-100 text-gray-800 border-gray-300' 
                             : 'bg-white text-gray-500 border-gray-200 hover:border-blue-200 hover:text-blue-600'}
                     `}
                 >
-                    <span className="text-[10px] font-bold font-mono uppercase tracking-wide">Card Details</span>
+                    <span className="text-[9px] font-bold font-mono uppercase tracking-wide">Details</span>
                     <div className={`transition-transform duration-300 ${isHeaderExpanded ? 'rotate-180' : 'rotate-0'}`}>
-                        <ChevronDown size={14}/>
+                        <ChevronDown size={12}/>
                     </div>
                 </button>
             </div>
 
-            {/* Trip Info Card (Matches TripCard Style EXACTLY) */}
+            {/* Trip Info Card - Compact */}
             <div className="px-4 pb-0">
-                <div className="bg-white border border-gray-100 rounded-t-2xl shadow-sm shadow-gray-200/50 overflow-hidden relative">
+                <div className="bg-white border border-gray-100 rounded-t-xl shadow-sm overflow-hidden relative">
                     
-                    {/* --- Card Header (Matches TripCard Header) --- */}
-                    <div className={`px-5 py-4 border-b transition-colors duration-500 ${getHeaderStyles()}`}>
-                        <div className="flex justify-between items-start mb-3">
+                    {/* --- Card Header --- */}
+                    <div className={`px-4 py-3 border-b transition-all duration-500 ${getHeaderStyles()}`}>
+                        <div className="flex justify-between items-start mb-2">
                             <div>
-                                <h3 className="text-base font-bold text-gray-800 font-mono tracking-tight leading-none mb-1">
+                                <h3 className="text-sm font-bold text-gray-800 font-sans tracking-tight leading-none mb-1">
                                     {trip.clientName}
                                 </h3>
-                                <div className="text-[10px] text-gray-400 font-mono flex items-center gap-2">
-                                        <span>International Transport</span>
+                                <div className="text-[9px] text-gray-400 font-mono flex items-center gap-2 uppercase tracking-widest">
+                                        <span>International</span>
                                 </div>
                             </div>
                             {renderStatusIcon()}
                         </div>
                         
                         {/* Stats Row */}
-                        <div className="flex flex-wrap items-center gap-2 text-[11px] font-mono text-gray-600">
-                            <div className="flex items-center gap-2 bg-white/60 border border-gray-200/50 rounded-lg px-2 py-1 backdrop-blur-sm">
+                        <div className="flex flex-wrap items-center gap-2 text-[10px] font-sans text-gray-600">
+                            <div className="flex items-center gap-2 bg-white/60 border border-gray-200/50 rounded-lg px-2 py-0.5 backdrop-blur-sm">
                                 <span className="font-bold text-gray-900">{trip.billing.amount} {trip.billing.currency}</span>
                             </div>
-                            <div className="flex items-center gap-2 bg-white/60 border border-gray-200/50 rounded-lg px-2 py-1 backdrop-blur-sm">
+                            <div className="flex items-center gap-2 bg-white/60 border border-gray-200/50 rounded-lg px-2 py-0.5 backdrop-blur-sm">
                                 <span>{trip.task.distance} km</span>
                                 <span className="text-gray-300">|</span>
                                 <span className="text-gray-500">{ratePerKm} €/km</span>
@@ -472,12 +487,12 @@ const TripDetailView: React.FC<TripDetailViewProps> = ({ trip, onBack }) => {
                                                 <div className="flex items-center gap-2 bg-gray-50/50 px-2 py-1.5 rounded border border-gray-100 w-full">
                                                     <div className="flex items-center gap-1.5">
                                                         <span className="font-bold text-gray-700 text-[11px]">{trip.task.pickup.city}</span>
-                                                        <span className="text-[10px] text-gray-400 font-mono">{trip.task.pickup.date}</span>
+                                                        <span className="text-[10px] text-gray-400 font-sans">{trip.task.pickup.date}</span>
                                                     </div>
                                                     <div className="text-gray-300 text-[10px]">➝</div>
                                                     <div className="flex items-center gap-1.5">
                                                         <span className="font-bold text-gray-700 text-[11px]">{trip.task.delivery.city}</span>
-                                                        <span className="text-[10px] text-gray-400 font-mono">{trip.task.delivery.date}</span>
+                                                        <span className="text-[10px] text-gray-400 font-sans">{trip.task.delivery.date}</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -494,13 +509,13 @@ const TripDetailView: React.FC<TripDetailViewProps> = ({ trip, onBack }) => {
                                         {trip.cmr.history.map((node, i) => {
                                             const isLastItem = i === trip.cmr.history.length - 1;
                                             return (
-                                                <TreeItem key={node.id} isLast={cmrState === 'RECEIVED' && isLastItem}>
+                                                <TreeItem key={node.id} isLast={cmrState === 'UPLOADED' && isLastItem}>
                                                     <div className="flex items-center gap-2 py-0.5">
-                                                        <span className={`text-[11px] font-medium font-mono ${getTextColor(node.status, isLastItem)}`}>
+                                                        <span className={`text-[11px] font-medium font-sans ${getTextColor(node.status, isLastItem)}`}>
                                                             {node.label}
                                                         </span>
                                                         {node.value && (
-                                                            <span className="text-[10px] text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100 font-mono">
+                                                            <span className="text-[10px] text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100 font-sans">
                                                                 {node.value}
                                                             </span>
                                                         )}
@@ -508,7 +523,7 @@ const TripDetailView: React.FC<TripDetailViewProps> = ({ trip, onBack }) => {
                                                 </TreeItem>
                                             );
                                         })}
-                                        {cmrState !== 'RECEIVED' && (
+                                        {cmrState === 'PENDING' && (
                                             <TreeItem isLast={true}>
                                                 <CompactActionButton 
                                                     state={cmrState} 
@@ -526,22 +541,41 @@ const TripDetailView: React.FC<TripDetailViewProps> = ({ trip, onBack }) => {
                                         <span>FINANCIALS</span>
                                     </div>
                                     <div className="pl-1">
-                                        {/* Static billing history simulation since props don't carry full history in type yet */}
-                                        <TreeItem isLast={billingState !== 'PAID'}>
-                                            <div className="flex items-center gap-2 py-0.5">
-                                                <span className={`text-[11px] font-medium font-mono ${billingState === 'PENDING' ? 'text-gray-400' : 'text-emerald-600'}`}>
-                                                    Billing Pipeline
-                                                </span>
-                                            </div>
-                                        </TreeItem>
+                                        {billingState === 'PENDING' && (
+                                           <TreeItem isLast={false}>
+                                              <span className="text-[11px] font-medium font-sans text-gray-400">
+                                                {cmrState === 'PENDING' ? 'Очікування завантаження документів' : 'Готово до оплати'}
+                                              </span>
+                                           </TreeItem>
+                                        )}
+                                        {/* Static billing history simulation */}
+                                        {billingState !== 'PENDING' && (
+                                            <TreeItem isLast={billingState === 'PAID'}>
+                                                <div className="flex items-center gap-2 py-0.5">
+                                                    <span className={`text-[11px] font-medium font-sans ${getTextColor(PipelineStatus.COMPLETED, true)}`}>
+                                                        Billing Pipeline
+                                                    </span>
+                                                </div>
+                                            </TreeItem>
+                                        )}
 
                                         {billingState !== 'PAID' && (
                                             <TreeItem isLast={true}>
-                                                <CompactActionButton 
-                                                    state={billingState} 
-                                                    type="billing" 
-                                                    colorTheme={getBillingButtonTheme()} 
-                                                />
+                                                {billingState === 'INVOICED' ? (
+                                                    cmrState === 'UPLOADED' ? (
+                                                        <CompactActionButton 
+                                                            state={billingState} 
+                                                            type="billing" 
+                                                            colorTheme={getBillingButtonTheme()} 
+                                                        />
+                                                    ) : null
+                                                ) : (
+                                                    <CompactActionButton 
+                                                        state={billingState} 
+                                                        type="billing" 
+                                                        colorTheme={getBillingButtonTheme()} 
+                                                    />
+                                                )}
                                             </TreeItem>
                                         )}
                                     </div>
@@ -585,7 +619,7 @@ const TripDetailView: React.FC<TripDetailViewProps> = ({ trip, onBack }) => {
         </div>
 
         {/* FLOATING INPUT CONSOLE */}
-        <div className="absolute bottom-6 left-4 right-4 z-40 max-w-4xl mx-auto">
+        <div className="absolute bottom-4 left-4 right-4 z-40 max-w-3xl mx-auto">
             <FloatingInputConsole activeTab={activeTab} trip={trip} />
         </div>
 
@@ -616,7 +650,7 @@ const TimelineNode: React.FC<{ item: ActivityItem, isLast: boolean }> = ({ item,
                 <div className={`w-px bg-gray-200 h-full absolute top-0 ${isLast ? 'h-4' : ''}`}></div>
                 
                 {/* Time Stamp */}
-                <div className="text-[9px] font-mono text-gray-400 bg-[#F3F4F6] px-1 z-10 mb-1">
+                <div className="text-[9px] font-sans text-gray-400 bg-[#F3F4F6] px-1 z-10 mb-1">
                     {new Date(item.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                 </div>
 
@@ -652,7 +686,7 @@ const TimelineNode: React.FC<{ item: ActivityItem, isLast: boolean }> = ({ item,
                     
                     {item.content && (
                         <div className={`
-                            text-xs text-gray-600 font-mono leading-relaxed mt-1.5
+                            text-xs text-gray-600 font-sans leading-relaxed mt-1.5
                             ${item.type === 'SYSTEM' ? 'text-[10px] text-gray-400' : ''}
                         `}>
                             {item.content}

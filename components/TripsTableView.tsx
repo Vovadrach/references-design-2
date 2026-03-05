@@ -165,7 +165,7 @@ const TripTableRow: React.FC<TripTableRowProps> = ({ trip, index, onClick }) => 
                     {trip.task.pickup.city}
                 </span>
             </div>
-            <span className="font-mono text-[9px] text-gray-400 pl-3">{trip.task.pickup.date}</span>
+            <span className="font-sans text-[9px] text-gray-400 pl-3">{trip.task.pickup.date}</span>
          </div>
       </td>
 
@@ -178,19 +178,19 @@ const TripTableRow: React.FC<TripTableRowProps> = ({ trip, index, onClick }) => 
                     {trip.task.delivery.city}
                 </span>
             </div>
-            <span className="font-mono text-[9px] text-gray-400 pl-3">{trip.task.delivery.date}</span>
+            <span className="font-sans text-[9px] text-gray-400 pl-3">{trip.task.delivery.date}</span>
          </div>
       </td>
 
       {/* 5. KM */}
       <td className={`px-3 py-3 text-right align-middle w-[80px] ${borderClass}`}>
-         <span className="font-mono text-gray-500 text-[11px] font-medium">{trip.task.distance} km</span>
+         <span className="font-sans text-gray-500 text-[11px] font-medium">{trip.task.distance} km</span>
       </td>
 
       {/* 6. Rate */}
       <td className={`px-3 py-3 text-right align-middle w-[80px] ${borderClass}`}>
          <div className="flex justify-end">
-             <span className="font-mono text-[10px] text-gray-400 font-bold bg-white border border-gray-100 px-1.5 py-0.5 rounded whitespace-nowrap group-hover:border-gray-200">
+             <span className="font-sans text-[10px] text-gray-400 font-bold bg-white border border-gray-100 px-1.5 py-0.5 rounded whitespace-nowrap group-hover:border-gray-200">
                 {ratePerKm} €
              </span>
          </div>
@@ -199,7 +199,7 @@ const TripTableRow: React.FC<TripTableRowProps> = ({ trip, index, onClick }) => 
       {/* 7. Amount (Tightened) */}
       <td className={`px-4 py-3 text-right min-w-[100px] align-middle ${borderClass}`}>
          <div className="flex flex-col items-end justify-center h-full">
-            <span className={`font-mono font-bold text-[13px] ${isPaid ? 'text-emerald-600' : 'text-gray-900'}`}>
+            <span className={`font-sans font-bold text-[13px] ${isPaid ? 'text-emerald-600' : 'text-gray-900'}`}>
                 {trip.billing.amount.toLocaleString()} <span className="text-[9px] font-normal text-gray-400">{trip.billing.currency}</span>
             </span>
          </div>

@@ -2,18 +2,21 @@ import React from 'react';
 import { 
     X, Truck, LayoutDashboard, CheckSquare, FileText, 
     Users, Settings, LogOut, Wallet, Search, 
-    PieChart, ChevronRight
+    PieChart, ChevronRight, Mail
 } from 'lucide-react';
 import { ViewState } from '../App';
+import { MOCK_CONVERSATIONS, MOCK_UNASSIGNED } from '../constants';
 
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
   currentView: ViewState;
-  onChangeView: (view: 'TRIPS' | 'TASKS') => void;
+  onChangeView: (view: ViewState) => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, currentView, onChangeView }) => {
+  const unreadCount = MOCK_CONVERSATIONS.reduce((acc, conv) => acc + conv.unreadCount, 0) + MOCK_UNASSIGNED.length;
+
   return (
     <>
       {/* Mobile Overlay */}
@@ -115,6 +118,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, currentView, onChang
                     onClick={() => onChangeView('TASKS')}
                     badge={3}
                     theme="amber"
+                />
+                <NavItem 
+                    label="Communications" 
+                    icon={<Mail />} 
+                    isActive={currentView === 'COMMUNICATIONS'} 
+                    onClick={() => onChangeView('COMMUNICATIONS')}
+                    badge={unreadCount}
+                    theme="purple"
                 />
                 <NavItem 
                     label="Analytics" 
